@@ -4,7 +4,7 @@
 
     class comments extends Model {
 
-        protected $table;
+        public $table;
         protected $fillable = [
             'postId',
             'userId',

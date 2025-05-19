@@ -4,7 +4,7 @@
 
     class user extends Model {
 
-        protected $table;
+        public $table;
         protected $fillable = [
             'name',
             'username',
