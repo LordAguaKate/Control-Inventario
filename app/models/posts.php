@@ -3,7 +3,7 @@
 
     class posts extends Model {
 
-        protected $table;
+        public $table;
         protected $fillable = [
             'userId',
             'title',

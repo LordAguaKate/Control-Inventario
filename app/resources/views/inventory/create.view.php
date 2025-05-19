@@ -1,7 +1,7 @@
 <?php include_once '../resources/layouts/main_head.php'; ?>
 
 <div class="container mt-4">
-    <h2>Agregar Nuevo Item</h2>
+    <h2>Agregar Nuevo Producto</h2>
     
     <form action="/inventory/store" method="POST">
         <div class="form-group">

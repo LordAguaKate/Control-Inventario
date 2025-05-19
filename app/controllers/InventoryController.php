@@ -38,9 +38,21 @@ class InventoryController extends Controller {
     public function store(){
         $data = filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
         
-        // Validación básica
-        if(empty($data['name']) || empty($data['quantity'])) {
-            $_SESSION['error'] = 'Nombre y cantidad son campos requeridos';
+        // Validación mejorada
+        if(empty($data['name'])) {
+            $_SESSION['error'] = 'El nombre es requerido';
+            Redirect::to('/inventory/create');
+            return;
+        }
+
+        if(!isset($data['quantity']) || !is_numeric($data['quantity']) || $data['quantity'] < 0) {
+            $_SESSION['error'] = 'La cantidad debe ser un número positivo';
+            Redirect::to('/inventory/create');
+            return;
+        }
+
+        if(isset($data['price']) && !is_numeric($data['price'])) {
+            $_SESSION['error'] = 'El precio debe ser un número válido';
             Redirect::to('/inventory/create');
             return;
         }
@@ -51,9 +63,11 @@ class InventoryController extends Controller {
             $data['description'] ?? '',
             (int)$data['quantity'],
             $data['category'] ?? '',
-            (float)$data['price'] ?? 0,
+            number_format((float)($data['price'] ?? 0), 2, '.', ''),
             $data['supplier'] ?? '',
-            (int)$data['min_stock'] ?? 0
+            (int)($data['min_stock'] ?? 0),
+            date('Y-m-d H:i:s'), // created_at
+            date('Y-m-d H:i:s')  // updated_at
         ];
         
         if($inventory->create()){
@@ -61,12 +75,15 @@ class InventoryController extends Controller {
             Redirect::to('/inventory');
         } else {
             $_SESSION['error'] = 'Error al crear el item';
+            if(method_exists($inventory, 'getError')) {
+                $_SESSION['error'] .= ': ' . $inventory->getError();
+            }
             Redirect::to('/inventory/create');
         }
     }
 
     public function edit($params = null){
-        $id = $params[0] ?? null; // Cambiado a [0] por el nuevo router
+        $id = $params[0] ?? null;
         
         if(!$id || !is_numeric($id)) {
             Redirect::to('/inventory');
@@ -92,7 +109,7 @@ class InventoryController extends Controller {
     }
 
     public function update($params = null){
-        $id = $params[0] ?? null; // Cambiado a [0] por el nuevo router
+        $id = $params[0] ?? null;
         
         if(!$id || !is_numeric($id)) {
             Redirect::to('/inventory');
@@ -101,9 +118,21 @@ class InventoryController extends Controller {
         
         $data = filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
         
-        // Validación básica
-        if(empty($data['name']) || empty($data['quantity'])) {
-            $_SESSION['error'] = 'Nombre y cantidad son campos requeridos';
+        // Validación mejorada
+        if(empty($data['name'])) {
+            $_SESSION['error'] = 'El nombre es requerido';
+            Redirect::to('/inventory/edit/'.$id);
+            return;
+        }
+
+        if(!isset($data['quantity']) || !is_numeric($data['quantity']) || $data['quantity'] < 0) {
+            $_SESSION['error'] = 'La cantidad debe ser un número positivo';
+            Redirect::to('/inventory/edit/'.$id);
+            return;
+        }
+
+        if(isset($data['price']) && !is_numeric($data['price'])) {
+            $_SESSION['error'] = 'El precio debe ser un número válido';
             Redirect::to('/inventory/edit/'.$id);
             return;
         }
@@ -114,9 +143,10 @@ class InventoryController extends Controller {
             $data['description'] ?? '',
             (int)$data['quantity'],
             $data['category'] ?? '',
-            (float)$data['price'] ?? 0,
+            number_format((float)($data['price'] ?? 0), 2, '.', ''),
             $data['supplier'] ?? '',
-            (int)$data['min_stock'] ?? 0
+            (int)($data['min_stock'] ?? 0),
+            date('Y-m-d H:i:s')  // updated_at
         ];
         
         if($inventory->update($id)){
@@ -124,12 +154,15 @@ class InventoryController extends Controller {
             Redirect::to('/inventory');
         } else {
             $_SESSION['error'] = 'Error al actualizar el item';
+            if(method_exists($inventory, 'getError')) {
+                $_SESSION['error'] .= ': ' . $inventory->getError();
+            }
             Redirect::to('/inventory/edit/'.$id);
         }
     }
 
     public function delete($params = null){
-        $id = $params[0] ?? null; // Cambiado a [0] por el nuevo router
+        $id = $params[0] ?? null;
         
         if(!$id || !is_numeric($id)) {
             Redirect::to('/inventory');
@@ -142,6 +175,9 @@ class InventoryController extends Controller {
             $_SESSION['success'] = 'Item eliminado exitosamente';
         } else {
             $_SESSION['error'] = 'Error al eliminar el item';
+            if(method_exists($inventory, 'getError')) {
+                $_SESSION['error'] .= ': ' . $inventory->getError();
+            }
         }
         
         Redirect::to('/inventory');
