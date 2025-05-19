@@ -23,7 +23,7 @@
 <div id="app" class="container-fluid p-0 sticky-top">
         <header class="row m-0 bg-dark bg-gradient" data-bs-theme="dark">
             <div class="col-9">
-                <h1 class="ml-3 mt-2">Foro FIE</h1>                      
+                <h1 class="ml-3 mt-2">EasyStock</h1>                      
             </div>
             <div class="col-3 mt-2">
                 <form class="d-flex" role="search">
@@ -47,6 +47,12 @@
                                 <a href="/UserPosts" class="nav-link btn btn-link"
                                     aria-current="page">
                                     Mis publicaciones
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/inventory" class="nav-link btn btn-link"
+                                    aria-current="page">
+                                    Inventario
                                 </a>
                             </li>
                         <?php endif ?>

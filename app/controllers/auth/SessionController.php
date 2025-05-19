@@ -54,26 +54,26 @@
         public static function sessionValidate(){
             $user = new user();
             session_start();
-            if( isset( $_SESSION['sv']) && $_SESSION['sv'] == true){
+            if(isset($_SESSION['sv']) && $_SESSION['sv'] == true){
                 $datos = $_SESSION;
-                $result = $user -> where([["username",$datos["username"]],
-                                          ["passwd",$datos["passwd"]]])
-                                ->get();
-                if( count( json_decode( $result )) > 0 && $datos['IP'] == $_SERVER['REMOTE_ADDR']){
+                $result = $user->where([
+                    ["username", $datos["username"]],
+                    ["passwd", $datos["passwd"]]
+                ])->get();
+                
+                if(count(json_decode($result)) > 0 && $datos['IP'] == $_SERVER['REMOTE_ADDR']){
                     session_write_close();
-                    return ['username' => $datos['username'],
-                            'sv' => $datos['sv'],
-                            'id' => $datos['id'],
-                            'tipo' => $datos['tipo']];
-                }else{
-                    session_write_close();
-                    self::sessionDestroy();
-                    return null;
+                    return (object)[ // Convertir a objeto
+                        'username' => $datos['username'],
+                        'sv' => $datos['sv'],
+                        'id' => $datos['id'],
+                        'tipo' => $datos['tipo']
+                    ];
                 }
             }
             session_write_close();
             self::sessionDestroy();
-            return null;
+            return (object)['sv' => false]; // Siempre devolver objeto
         }
 
         public static function sessionDestroy(){
