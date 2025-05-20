@@ -1,6 +1,10 @@
-<?php include_once LAYOUTS . 'main_head.php'; ?>
+<?php include LAYOUTS . 'main_head.php';
 
-<div class="container mt-4">
+    setHeader($d)
+
+?>
+
+<div class="container inventory-index mt-4">
     <h2>Inventario</h2>
     <a href="/inventory/create" class="btn btn-primary mb-3">Agregar Item</a>
     
