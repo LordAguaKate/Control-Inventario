@@ -1,45 +1,61 @@
-<?php include_once '../resources/layouts/main_head.php'; ?>
+<?php include LAYOUTS . 'main_head.php';
 
-<div class="container mt-4">
+    setHeader($d)
+
+?>
+
+<div class="container product-form-container mt-4">
     <h2>Agregar Nuevo Producto</h2>
     
     <form action="/inventory/store" method="POST">
-        <div class="form-group">
+        <div class="form-group inventory">
             <label>Nombre:</label>
             <input type="text" name="name" class="form-control" required>
         </div>
         
-        <div class="form-group">
+        <div class="form-group inventory">
             <label>Descripción:</label>
             <textarea name="description" class="form-control"></textarea>
         </div>
         
-        <div class="form-group">
-            <label>Cantidad:</label>
-            <input type="number" name="quantity" class="form-control" required>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group inventory">
+                    <label>Cantidad:</label>
+                    <input type="number" name="quantity" class="form-control" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group inventory">
+                    <label>Stock Mínimo:</label>
+                    <input type="number" name="min_stock" class="form-control">
+                </div>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label>Categoría:</label>
-            <input type="text" name="category" class="form-control">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group inventory">
+                    <label>Categoría:</label>
+                    <input type="text" name="category" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group inventory">
+                    <label>Precio:</label>
+                    <input type="number" step="0.01" name="price" class="form-control">
+                </div>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label>Precio:</label>
-            <input type="number" step="0.01" name="price" class="form-control">
-        </div>
-        
-        <div class="form-group">
+        <div class="form-group inventory">
             <label>Proveedor:</label>
             <input type="text" name="supplier" class="form-control">
         </div>
         
-        <div class="form-group">
-            <label>Stock Mínimo:</label>
-            <input type="number" name="min_stock" class="form-control">
-        </div>
-        
         <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="/inventory" class="btn btn-cancel">Cancelar</a>
+
     </form>
 </div>
 
