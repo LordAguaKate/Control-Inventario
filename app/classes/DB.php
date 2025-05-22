@@ -1,5 +1,4 @@
 <?php
-
 namespace app\classes;
 
 class DB {
@@ -10,7 +9,7 @@ class DB {
     private $db_passwd;
 
     public $conex; // Atributo de conexión
-    public $table; // Necesario para las operaciones
+    protected $table; // Necesario para las operaciones
 
     // Propiedades de el manejo de datos
     protected $fillable = [];
@@ -25,10 +24,11 @@ class DB {
     public $l = "";
 
     public function __construct($dbh = DB_HOST, $dbn = DB_NAME, $dbu = DB_USER, $dbp = DB_PASS){
-        $this->db_host   = $dbh;
-        $this->db_name   = $dbn;
-        $this->db_user   = $dbu;
+        $this->db_host = $dbh;
+        $this->db_name = $dbn;
+        $this->db_user = $dbu;
         $this->db_passwd = $dbp;
+        $this->connect();
     }
 
     public function connect(){
@@ -36,11 +36,60 @@ class DB {
         if($this->conex->connect_errno){
             throw new \Exception("Error al conectarse a la BD: " . $this->conex->connect_error);
         }
-        $this->conex->set_charset("utf8");
-        $this->table = $this->conex; // Asignamos la conexión a table
+        $this->conex->set_charset("utf8mb4");
         return $this->conex;
     }
 
+    // Métodos nuevos añadidos
+    public function query($sql) {
+        if(!$this->conex || !$this->conex->ping()) {
+            $this->connect(); // Reconectar si la conexión se perdió
+        }
+        $result = $this->conex->query($sql);
+        if(!$result) {
+            throw new \Exception("Error en la consulta: " . $this->conex->error);
+        }
+        return $result;
+    }
+
+    public function real_escape_string($str) {
+        return $this->conex->real_escape_string($str);
+    }
+
+    public function ping() {
+        return $this->conex->ping();
+    }
+
+    protected function getTableName() {
+        // Si $this->table es string y no está vacío, úsalo
+        if (isset($this->table) && is_string($this->table) && $this->table !== '') {
+            return $this->table;
+        }
+        // Si no, usa el nombre de la clase como nombre de tabla
+        return strtolower(str_replace("app\\models\\", "", get_class($this)));
+    }
+
+    // Métodos existentes modificados
+    public function get(){
+        $sql = "select " .
+                $this->s . 
+                $this->c .
+                " from " . $this->getTableName() .
+                ($this->j != "" ? " a " . $this->j : "") .
+                " where " . $this->w .
+                $this->o . 
+                $this->l;
+        
+        $r = $this->query($sql);
+        
+        $result = [];
+        while($f = $r->fetch_assoc()){
+            $result[] = $f;
+        }
+        return $result; // Ahora retorna array directamente en lugar de JSON
+    }
+
+    // Métodos existentes (se mantienen igual)
     public function all(){
         return $this;
     }
@@ -68,7 +117,7 @@ class DB {
         $this->w = "";
         if(count($ww) > 0){
             foreach($ww as $wheres){
-                $this->w .= $wheres[0] . " = '" . $this->conex->real_escape_string($wheres[1]) . "' and ";
+                $this->w .= $wheres[0] . " = '" . $this->real_escape_string($wheres[1]) . "' and ";
             }
         }
         $this->w .= ' 1 ';
@@ -95,39 +144,17 @@ class DB {
         return $this;
     }
 
-    public function get(){
-        $sql = "select " .
-                $this->s . 
-                $this->c .
-                " from " . strtolower(str_replace("app\\models\\", "", get_class($this))) .
-                ($this->j != "" ? " a " . $this->j : "") .
-                " where " . $this->w .
-                $this->o . 
-                $this->l;
-        
-        $r = $this->table->query($sql);
-        if(!$r){
-            throw new \Exception("Error en la consulta: " . $this->table->error);
-        }
-        
-        $result = [];
-        while($f = $r->fetch_assoc()){
-            $result[] = $f;
-        }
-        return json_encode($result);
-    }
-
     public function create(){
-        $tableName = strtolower(str_replace("app\\models\\", "", get_class($this)));
+        $tableName = $this->getTableName();
         $placeholders = implode(",", array_fill(0, count($this->fillable), "?"));
-        $types = str_repeat("s", count($this->fillable)); // Todos como strings
+        $types = str_repeat("s", count($this->fillable));
         
         $sql = "insert into " . $tableName .
                " (" . implode(",", $this->fillable) . ") values (" . $placeholders . ")";
         
-        $stmt = $this->table->prepare($sql);
+        $stmt = $this->conex->prepare($sql);
         if(!$stmt){
-            throw new \Exception("Error al preparar la consulta: " . $this->table->error);
+            throw new \Exception("Error al preparar la consulta: " . $this->conex->error);
         }
         
         $stmt->bind_param($types, ...$this->values);
@@ -139,14 +166,10 @@ class DB {
     }
 
     public function delete(){
-        $tableName = strtolower(str_replace("app\\models\\", "", get_class($this)));
+        $tableName = $this->getTableName();
         $sql = "delete from " . $tableName . " where " . $this->w;
         
-        $result = $this->table->query($sql);
-        if(!$result){
-            throw new \Exception("Error al eliminar: " . $this->table->error);
-        }
-        
+        $result = $this->query($sql);
         return $result;
     }
 }

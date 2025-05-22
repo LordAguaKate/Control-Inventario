@@ -2,8 +2,7 @@
 namespace app\models;
 
 class inventory extends Model {
-    // Mantenemos public para coincidir con la clase Model
-    public $table;
+    protected $table = 'inventory';
     
     protected $fillable = [
         'name',
@@ -17,23 +16,25 @@ class inventory extends Model {
         'updated_at'
     ];
 
-    protected $error; // Para manejo de errores
+    protected $error;
+    public $values = [];
 
     public function __construct(){
         parent::__construct();
-        $this->table = $this->connect();
+        $this->table = 'inventory';
+        if(!$this->conex || !$this->conex->ping()) {
+            $this->connect();
+        }
     }
-
-    public $values = [];
 
     // Método para obtener errores
     public function getError() {
-        return $this->error;
+        return $this->error ?? ($this->conex->error ?? 'Error desconocido');
     }
 
-    public function getAllItems($limit = 10){
+    public function getAllItems($limit = 0){
         try {
-            $result = $this->select([
+            $this->select([
                 'id',
                 'name',
                 'description',
@@ -42,16 +43,23 @@ class inventory extends Model {
                 'price',
                 'supplier',
                 'min_stock',
-                'DATE_FORMAT(created_at, "%d/%m/%Y") as fecha'
+                'DATE_FORMAT(created_at, "%d/%m/%Y %H:%i") as fecha_creacion',
+                'DATE_FORMAT(updated_at, "%d/%m/%Y %H:%i") as fecha_actualizacion'
             ])
-            ->orderBy([['created_at', 'desc']])
-            ->limit($limit)
-            ->get();
+            ->orderBy([['updated_at', 'DESC']]);
+
+            if($limit > 0) {
+                $this->limit($limit);
+            }
+
+            $result = $this->get();
             
-            return $result;
+            return is_array($result) ? $result : [];
+            
         } catch (\Exception $e) {
             $this->error = $e->getMessage();
-            return false;
+            error_log('Error en inventory.getAllItems: ' . $e->getMessage());
+            return [];
         }
     }
 
@@ -71,10 +79,12 @@ class inventory extends Model {
             ->where([['id', $id]])
             ->get();
             
-            return $result;
+            return !empty($result) ? $result[0] : null;
+
         } catch (\Exception $e) {
             $this->error = $e->getMessage();
-            return false;
+            error_log('Error en inventory.getItem: ' . $e->getMessage());
+            return null;
         }
     }
 
@@ -100,7 +110,7 @@ class inventory extends Model {
             $result = $this->insert($data);
             
             if(!$result) {
-                $this->error = $this->table->error;
+                $this->error = $this->conex->error;
             }
             
             return $result;
@@ -131,7 +141,7 @@ class inventory extends Model {
             $result = $this->where([['id', $id]])->update($data);
             
             if(!$result) {
-                $this->error = $this->table->error;
+                $this->error = $this->conex->error;
             }
             
             return $result;
@@ -150,7 +160,7 @@ class inventory extends Model {
             $result = parent::delete($where);
             
             if(!$result) {
-                $this->error = $this->table->error;
+                $this->error = $this->conex->error;
             }
             
             return $result;
@@ -166,10 +176,10 @@ class inventory extends Model {
             $placeholders = implode(', ', array_fill(0, count($data), '?'));
             
             $sql = "INSERT INTO inventory ($columns) VALUES ($placeholders)";
-            $stmt = $this->table->prepare($sql);
+            $stmt = $this->conex->prepare($sql);
             
             if(!$stmt) {
-                $this->error = $this->table->error;
+                $this->error = $this->conex->error;
                 return false;
             }
             

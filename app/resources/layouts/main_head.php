@@ -1,6 +1,6 @@
 <?php
 function setHeader($args){
-    $ua = as_object($args->ua);
+    $ua = isset($args->ua) ? as_object($args->ua) : (object)[];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -10,7 +10,7 @@ function setHeader($args){
     <link rel="stylesheet" href="/assets/css/bootstrap.css">
     <link rel="stylesheet" href="/assets/css/inventory-index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <title><?=$args->title?></title>
+    <title><?= isset($args->title) ? $args->title : '' ?></title>
     <style>
         html, body {
             height: 100%;
@@ -42,7 +42,7 @@ function setHeader($args){
                 <?php endif ?>
             </ul>
             
-            <?php if($ua->sv): ?>
+            <?php if(isset($ua->sv) && $ua->sv): ?>
             <!-- Botón cerrar sesión abajo -->
             <div class="mt-auto pt-3 border-top">
                 <div class="dropdown w-100">

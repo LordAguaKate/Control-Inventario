@@ -1,5 +1,7 @@
-<?php include LAYOUTS . 'main_head.php';
-setHeader($d);
+<?php
+include LAYOUTS . 'main_head.php';
+if (isset($response) && is_array($response)) extract($response);
+setHeader((object) get_defined_vars());
 ?>
 
 <div class="container inventory-index mt-4">
