@@ -4,7 +4,7 @@
 
 ?>
 
-<div class="container inventory-create mt-4">
+<div class="container product-form-container mt-4">
     <h2>Agregar Nuevo Producto</h2>
     
     <form action="/inventory/store" method="POST">
@@ -53,7 +53,9 @@
             <input type="text" name="supplier" class="form-control">
         </div>
         
-        <button type="submit" class="btn btn-primary btn-inventory-save">Guardar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="/inventory" class="btn btn-cancel">Cancelar</a>
+
     </form>
 </div>
 

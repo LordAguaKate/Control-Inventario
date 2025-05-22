@@ -40,3 +40,4 @@ function setFooter($args = []) {  // Asegurar parámetro por defecto
         </body>
         </html>
     <?php }
+    
