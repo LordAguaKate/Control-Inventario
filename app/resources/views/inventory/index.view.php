@@ -1,7 +1,6 @@
-<?php
-include LAYOUTS . 'main_head.php';
-if (isset($response) && is_array($response)) extract($response);
-setHeader((object) get_defined_vars());
+<?php include LAYOUTS . 'main_head.php';
+setHeader($d);
+
 ?>
 
 <div class="container inventory-index mt-4">
@@ -20,8 +19,8 @@ setHeader((object) get_defined_vars());
             </tr>
         </thead>
         <tbody>
-            <?php if(isset($items) && is_array($items) && !empty($items)): ?>
-                <?php foreach($items as $item): ?>
+            <?php if(isset($data['items']) && is_array($data['items']) && !empty($data['items'])): ?>
+                <?php foreach($data['items'] as $item): ?>
                 <tr>
                     <td><?= htmlspecialchars($item['name']) ?></td>
                     <td><?= htmlspecialchars($item['quantity']) ?></td>

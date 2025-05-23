@@ -12,13 +12,9 @@ class InventoryController extends Controller {
     }
 
     public function index(){
-    $inventory = new InventoryModel();
-    $items = $inventory->getAllItems(); // Sin límite o pasa un número si quieres
+        $inventory = new InventoryModel();
+        $items = json_decode($inventory->getAllItems(), true);
         
-        if(empty($items)) {
-        error_log('Items vacío. Error: ' . $inventory->getError());
-        }
-
         $response = [
             'ua' => SC::sessionValidate() ?? ['sv' => 0],
             'code' => 200,

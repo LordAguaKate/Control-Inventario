@@ -1,6 +1,6 @@
 <?php include LAYOUTS . 'main_head.php';
 
-    setHeader((object) get_defined_vars());
+    setHeader($d)
 
 ?>
 

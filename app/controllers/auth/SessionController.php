@@ -29,7 +29,7 @@
             $result = $user -> where([["username",$datos["username"]],
                                       ["passwd",sha1($datos["passwd"])]])
                             ->get();
-            if( count($result) > 0){
+            if( count( json_decode($result)) > 0){
                 //Se registra la sesión
                echo $this -> sessionRegister( $result );
             }else{
@@ -61,7 +61,7 @@
                     ["passwd", $datos["passwd"]]
                 ])->get();
                 
-                if(count($result) > 0 && isset($datos['IP']) && is_string($datos['IP']) && $datos['IP'] === $_SERVER['REMOTE_ADDR']){
+                if(count(json_decode($result)) > 0 && $datos['IP'] == $_SERVER['REMOTE_ADDR']){
                     session_write_close();
                     return (object)[ // Convertir a objeto
                         'username' => $datos['username'],
