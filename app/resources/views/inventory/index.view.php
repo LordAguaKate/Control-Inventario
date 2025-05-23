@@ -1,5 +1,6 @@
 <?php include LAYOUTS . 'main_head.php';
 setHeader($d);
+
 ?>
 
 <div class="container inventory-index mt-4">
@@ -18,8 +19,8 @@ setHeader($d);
             </tr>
         </thead>
         <tbody>
-            <?php if(isset($items) && is_array($items) && !empty($items)): ?>
-                <?php foreach($items as $item): ?>
+            <?php if(isset($data['items']) && is_array($data['items']) && !empty($data['items'])): ?>
+                <?php foreach($data['items'] as $item): ?>
                 <tr>
                     <td><?= htmlspecialchars($item['name']) ?></td>
                     <td><?= htmlspecialchars($item['quantity']) ?></td>
