@@ -7,6 +7,7 @@ class inventory extends Model {
     
     protected $fillable = [
         'name',
+        'image_url',
         'description',
         'quantity', 
         'category',
@@ -36,6 +37,7 @@ class inventory extends Model {
             $result = $this->select([
                 'id',
                 'name',
+                'image_url',
                 'description',
                 'quantity', 
                 'category',
@@ -60,6 +62,7 @@ class inventory extends Model {
             $result = $this->select([
                 'id',
                 'name',
+                'image_url',
                 'description',
                 'quantity',
                 'category',
@@ -87,20 +90,38 @@ class inventory extends Model {
         try {
             $data = [
                 'name' => $this->values[0] ?? '',
-                'description' => $this->values[1] ?? '',
-                'quantity' => (int)($this->values[2] ?? 0),
-                'category' => $this->values[3] ?? '',
-                'price' => number_format((float)($this->values[4] ?? 0), 2, '.', ''),
-                'supplier' => $this->values[5] ?? '',
-                'min_stock' => (int)($this->values[6] ?? 0),
+                'image_url' => $this->values[1] ?? '',
+                'description' => $this->values[2] ?? '',
+                'quantity' => (int)($this->values[3] ?? 0),
+                'category' => $this->values[4] ?? '',
+                'price' => $this->values[5] ?? '0.00',
+                'supplier' => $this->values[6] ?? '',
+                'min_stock' => (int)($this->values[7] ?? 0),
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
+            // Validar que los campos requeridos no estén vacíos
+            if (empty($data['name'])) {
+                $this->error = 'El nombre es requerido';
+                return false;
+            }
+
+            // Validar que los campos numéricos sean válidos
+            if (!is_numeric($data['quantity']) || $data['quantity'] < 0) {
+                $this->error = 'La cantidad debe ser un número positivo';
+                return false;
+            }
+
+            if (!is_numeric($data['price'])) {
+                $this->error = 'El precio debe ser un número válido';
+                return false;
+            }
+
             $result = $this->insert($data);
             
             if(!$result) {
-                $this->error = $this->table->error;
+                $this->error = $this->table->error ?? 'Error al insertar en la base de datos';
             }
             
             return $result;
@@ -162,6 +183,14 @@ class inventory extends Model {
 
     public function insert($data) {
         try {
+            // Asegurarse de que los datos estén en el formato correcto
+            $data = array_map(function($value) {
+                if (is_numeric($value)) {
+                    return $value;
+                }
+                return $value;
+            }, $data);
+
             $columns = implode(', ', array_keys($data));
             $placeholders = implode(', ', array_fill(0, count($data), '?'));
             
@@ -169,28 +198,40 @@ class inventory extends Model {
             $stmt = $this->table->prepare($sql);
             
             if(!$stmt) {
-                $this->error = $this->table->error;
+                $this->error = $this->table->error ?? 'Error al preparar la consulta';
                 return false;
             }
             
             // Tipos de parámetros (s = string, i = integer, d = double)
             $types = '';
+            $values = [];
             foreach($data as $value) {
-                if(is_int($value)) $types .= 'i';
-                elseif(is_float($value)) $types .= 'd';
-                else $types .= 's';
+                if(is_int($value)) {
+                    $types .= 'i';
+                    $values[] = (int)$value;
+                } elseif(is_float($value) || (is_string($value) && is_numeric($value))) {
+                    $types .= 'd';
+                    $values[] = (float)$value;
+                } else {
+                    $types .= 's';
+                    $values[] = (string)$value;
+                }
             }
             
-            $stmt->bind_param($types, ...array_values($data));
+            $stmt->bind_param($types, ...$values);
             $success = $stmt->execute();
             
             if(!$success) {
-                $this->error = $stmt->error;
+                $this->error = $stmt->error ?? 'Error al ejecutar la consulta';
+                return false;
             }
             
-            return $success ? $stmt->insert_id : false;
+            $insert_id = $stmt->insert_id;
+            $stmt->close();
+            
+            return $insert_id;
         } catch (\Exception $e) {
-            $this->error = $e->getMessage();
+            $this->error = 'Error en insert: ' . $e->getMessage();
             return false;
         }
     }

@@ -19,6 +19,9 @@ setHeader($d);
                 ?>
                 <div class="col-md-3 mb-4">
                     <div class="card h-100 shadow-sm">
+                        <?php if (!empty($post['image_url'])): ?>
+                            <img src="<?= htmlspecialchars($post['image_url']) ?>" class="card-img-top" alt="<?= htmlspecialchars($post['name']) ?>" style="height: 200px; object-fit: cover;">
+                        <?php endif; ?>
                         <div class="card-body">
                             <h5 class="card-title text-primary"><?= htmlspecialchars($post['name'] ?? 'Sin nombre') ?></h5>
                             <div class="mb-2">
@@ -78,6 +81,11 @@ setHeader($d);
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                       </div>
                       <div class="modal-body">
+                          <?php if (!empty($post['image_url'])): ?>
+                              <div class="text-center mb-3">
+                                  <img src="<?= htmlspecialchars($post['image_url']) ?>" alt="<?= htmlspecialchars($post['name']) ?>" style="max-height: 200px; max-width: 100%;">
+                              </div>
+                          <?php endif; ?>
                           <div class="mb-3">
                               <label>Nombre</label>
                               <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($post['name']) ?>" required>
