@@ -11,6 +11,24 @@ function setFooter($args = []) {  // Asegurar parámetro por defecto
         'tipo' => ''
     ];
 ?>
+    <!-- Modal de Éxito -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">¡Éxito!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="successMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="<?=JS?>jquery.js"></script>
     <script src="<?=JS?>bootstrap.js"></script>
     <script src="<?=JS?>sweetalert2.js"></script>
@@ -32,6 +50,13 @@ function setFooter($args = []) {  // Asegurar parámetro por defecto
             app.user.id = <?= json_encode($ua->id ?? '') ?>;
             app.user.username = <?= json_encode($ua->username ?? '') ?>;
             app.user.tipo = <?= json_encode($ua->tipo ?? '') ?>;
+
+            // Mostrar modal de éxito si hay mensaje
+            <?php if (isset($_SESSION['success'])): ?>
+                $('#successMessage').text('<?= addslashes($_SESSION['success']) ?>');
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
         })
     </script>
 <?php

@@ -7,10 +7,15 @@
 <div class="container product-form-container mt-4">
     <h2>Agregar Nuevo Producto</h2>
     
-    <form action="/inventory/store" method="POST">
+    <form action="/inventory/store" method="POST" enctype="multipart/form-data">
         <div class="form-group inventory">
             <label>Nombre:</label>
             <input type="text" name="name" class="form-control" required>
+        </div>
+        
+        <div class="form-group inventory">
+            <label>Imagen del Producto:</label>
+            <input type="file" name="product_image" class="form-control" accept="image/*">
         </div>
         
         <div class="form-group inventory">
