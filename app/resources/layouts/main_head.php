@@ -1,6 +1,20 @@
 <?php
 function setHeader($args){
-    $ua = as_object($args->ua);
+    // Asegurarse de que $args es un objeto
+    $args = is_array($args) ? (object)$args : $args;
+    
+    // Inicializar ua con valores por defecto si no existe
+    $ua = (object)[
+        'sv' => false,
+        'id' => '',
+        'username' => 'Invitado',
+        'tipo' => ''
+    ];
+    
+    // Si $args->ua existe, fusionar con los valores por defecto
+    if (isset($args->ua)) {
+        $ua = (object)array_merge((array)$ua, (array)$args->ua);
+    }
 ?>
 <!DOCTYPE html>
 <html lang="es">
