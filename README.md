@@ -95,4 +95,4 @@ Gracias al uso de tecnologías modernas y arquitectura MVC, EasyStock es fácilm
 1. Clona este repositorio:
 
 ```bash
-git clone https://github.com/tuusuario/easystock.git
+https://github.com/LordAguaKate/Control-Inventario.git
